@@ -77,7 +77,7 @@ bool initialize() {
         exit(1);
     }
 
-    window = SDL_CreateWindow("Pong",
+    window = SDL_CreateWindow("COMP4985 Prototype v0",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
@@ -101,7 +101,7 @@ bool initialize() {
 
     maps = makeMap(MAP_DEFAULT_HEIGHT, MAP_DEFAULT_WIDTH, map_array);
 
-    player1 = makeNewPlayer(maps.width, maps.height);
+    player1 = makeNewPlayer(maps.width / 2, maps.height / 2);
 
 
 

@@ -3,7 +3,7 @@
 
 
 
-const int BORDER_THICKNESS = 10;
+const int BORDER_THICKNESS = 1;
 
 Maps makeMap(int height, int width, int** mapArray) {
     Maps m = {
@@ -44,12 +44,7 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
             }
         }
     }
-
-
-
-
 }
-
 
 
 
