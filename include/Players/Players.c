@@ -4,16 +4,17 @@
 const int PLAYER_WIDTH = 20;
 const int PLAYER_HEIGHT = 35;
 const int PLAYER_MARGIN = 10;
+const float PLAYER_SPEED_FOR_BOTH_X_AND_Y = 350.0f;
 
 
 
-Player makeNewPlayer(void) {
+Player makeNewPlayer(int startingPosX, int startingPosY) {
     Player p = {
             .score = 0,
-            .xPos = 100,
-            .yPos = 100,
-            .xSpeed = 150.0f,
-            .ySpeed = 150.0f,
+            .xPos = (float) startingPosX,
+            .yPos = (float) startingPosY,
+            .xSpeed = PLAYER_SPEED_FOR_BOTH_X_AND_Y,
+            .ySpeed = PLAYER_SPEED_FOR_BOTH_X_AND_Y,
             .keyboardState = SDL_GetKeyboardState(NULL),
     };
     return p;

@@ -6,6 +6,8 @@
 #include <time.h>
 #include "include/State/state.h"
 #include "include/Players/Players.h"
+#include "include/Maps/Maps.h"
+
 
 
 bool initialize(void);
@@ -14,11 +16,20 @@ void shutdown();
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1620;
+const int SCREEN_HEIGHT = 880;
 
 Player player1;
 int numOfPlayers = 1;
+
+//Map Section
+Maps maps;
+int **map_array;
+const int MAP_DEFAULT_HEIGHT = 750;
+const int MAP_DEFAULT_WIDTH = 1600;
+
+const int BORDER_VALUE = 1;
+
 
 
 int main() {
@@ -80,7 +91,18 @@ bool initialize() {
         return false;
     }
 
-    player1 = makeNewPlayer();
+
+
+    map_array = (int**)malloc(MAP_DEFAULT_HEIGHT * sizeof(int*));
+    for (int i = 0; i < MAP_DEFAULT_HEIGHT; ++i) {
+        map_array[i] = (int*) malloc(MAP_DEFAULT_WIDTH * sizeof(int));
+    }
+
+
+    maps = makeMap(MAP_DEFAULT_HEIGHT, MAP_DEFAULT_WIDTH, map_array);
+
+    player1 = makeNewPlayer(maps.width, maps.height);
+
 
 
     return true;
@@ -90,8 +112,11 @@ void update(float elapsed) {
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
 
-    updatePlayers(&player1, 1, elapsed);
+    renderMap(&renderer, maps, SCREEN_HEIGHT, SCREEN_WIDTH);
+
+    updatePlayers(&player1, numOfPlayers, elapsed);
     renderPlayers(&renderer, &player1, 1);
+
     SDL_RenderPresent(renderer);
 }
 
@@ -103,6 +128,14 @@ void shutdown() {
     if (window) {
         SDL_DestroyWindow(window);
     }
+
+    if (map_array) {
+        for (int i = 0; i < MAP_DEFAULT_HEIGHT; ++i) {
+            free(map_array[i]);
+        }
+        free(map_array);
+    }
+
 
     SDL_Quit();
 }

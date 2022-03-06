@@ -11,7 +11,7 @@ typedef struct Player{
     const Uint8 *keyboardState;
 } Player;
 
-Player makeNewPlayer(void);
+Player makeNewPlayer(int startingPosX, int startingPosY);
 void updatePlayers(struct Player *players, int numOfPlayers, float elapsed);
 void renderPlayers(SDL_Renderer **renderer, struct Player *players, int numOfPlayers);
 
