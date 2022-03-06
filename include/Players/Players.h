@@ -2,9 +2,18 @@
 #define COMP4985_GAME_PROTOTYPE_V0_PLAYERS_H
 
 
-struct player;
+typedef struct Player{
+    int score;
+    float xPos;
+    float yPos;
+    float xSpeed;
+    float ySpeed;
+    const Uint8 *keyboardState;
+} Player;
 
-
+Player makeNewPlayer(void);
+void updatePlayers(struct Player *players, int numOfPlayers, float elapsed);
+void renderPlayers(SDL_Renderer **renderer, struct Player *players, int numOfPlayers);
 
 
 #endif //COMP4985_GAME_PROTOTYPE_V0_PLAYERS_H

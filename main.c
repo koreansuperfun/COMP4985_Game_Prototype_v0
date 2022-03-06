@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "include/State/state.h"
-
+#include "include/Players/Players.h"
 
 
 bool initialize(void);
@@ -16,6 +16,9 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
+
+Player player1;
+int numOfPlayers = 1;
 
 
 int main() {
@@ -77,6 +80,8 @@ bool initialize() {
         return false;
     }
 
+    player1 = makeNewPlayer();
+
 
     return true;
 }
@@ -85,6 +90,8 @@ void update(float elapsed) {
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
 
+    updatePlayers(&player1, 1, elapsed);
+    renderPlayers(&renderer, &player1, 1);
     SDL_RenderPresent(renderer);
 }
 
