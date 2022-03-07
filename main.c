@@ -7,7 +7,7 @@
 #include "include/State/state.h"
 #include "include/Players/Players.h"
 #include "include/Maps/Maps.h"
-
+#define LEN(arr) ((int) (sizeof (arr) / sizeof (arr)[0]))
 
 
 bool initialize(void);
@@ -28,7 +28,7 @@ int **map_array;
 const int MAP_DEFAULT_HEIGHT = 750;
 const int MAP_DEFAULT_WIDTH = 1600;
 
-const int BORDER_VALUE = 1;
+const int BORDER_VALUE = 50;
 
 
 
@@ -98,6 +98,10 @@ bool initialize() {
         map_array[i] = (int*) malloc(MAP_DEFAULT_WIDTH * sizeof(int));
     }
 
+    printf("size of length height: %d\n", MAP_DEFAULT_HEIGHT);
+    printf("size of length width: %d\n", MAP_DEFAULT_WIDTH);
+
+
 
     maps = makeMap(MAP_DEFAULT_HEIGHT, MAP_DEFAULT_WIDTH, map_array);
 
@@ -111,6 +115,12 @@ bool initialize() {
 void update(float elapsed) {
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
+
+
+    setBorderLine(&maps,100, 100, 1600, 'r');
+    setBorderLine(&maps,100, 100, 550, 'd');
+    setBorderLine(&maps,500, 500, 100, 'u');
+
 
     renderMap(&renderer, maps, SCREEN_HEIGHT, SCREEN_WIDTH);
 

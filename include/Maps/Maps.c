@@ -4,6 +4,7 @@
 
 
 const int BORDER_THICKNESS = 1;
+const int BORDER_VALUE_IN_ARRAY = 1;
 
 Maps makeMap(int height, int width, int** mapArray) {
     Maps m = {
@@ -15,6 +16,46 @@ Maps makeMap(int height, int width, int** mapArray) {
     };
     return m;
 }
+
+void setBorderLine(Maps *maps, int startingX, int startingY, int distance, char dir) {
+    if (startingX < 0 || startingY < 0 || startingX > maps->width || startingY > maps->height) {
+        fprintf(stderr, "Invalid staring position. Out of bounds from map.");
+    }
+
+    if (distance <= 0) {
+        fprintf(stderr, "Distance must be greater than 0.");
+    }
+
+    int counter = 0;
+
+    if (dir == 'l') {
+        for (int x = startingX; (x >= 0) && (counter < distance); --x) {
+            maps->map_array[startingY][x] = BORDER_VALUE_IN_ARRAY;
+            ++counter;
+        }
+
+    } else if (dir == 'r') {
+        for (int x = startingX; (x < maps->width) && (counter < distance); ++x) {
+            maps->map_array[startingY][x] = BORDER_VALUE_IN_ARRAY;
+            ++counter;
+        }
+    } else if (dir == 'u') {
+        for (int y = startingX; (y >= 0) && (counter < distance); --y) {
+            maps->map_array[y][startingX] = BORDER_VALUE_IN_ARRAY;
+            ++counter;
+        }
+    } else if (dir == 'd') {
+        for (int y = startingX; (y < maps->height) && (counter < distance); ++y) {
+            maps->map_array[y][startingX] = BORDER_VALUE_IN_ARRAY;
+            ++counter;
+        }
+    } else {
+        fprintf(stderr, "Direction must be a char of either u, d, l , or r.");
+    }
+
+}
+
+
 
 void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenWidth) {
     int xOffSetToCenter = (screenWidth / 2) - (maps.width / 2);
@@ -33,7 +74,7 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
     for (int y = 0; y < maps.height; ++y) {
         for (int x = 0; x < maps.height; ++x) {
             if (maps.map_array[y][x] == 1) {
-                SDL_SetRenderDrawColor(*renderer, 180, 180, 180, 1);
+                SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 255);
                 SDL_Rect border_block = {
                         .x = xOffSetToCenter + x,
                         .y = yOffSetToCenter + y,
@@ -41,6 +82,8 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
                         .h = BORDER_THICKNESS
                 };
                 SDL_RenderFillRect(*renderer, &border_block);
+            } else if (maps.map_array[y][x] == 2) {
+
             }
         }
     }
