@@ -7,6 +7,8 @@
 #include "include/State/state.h"
 #include "include/Players/Players.h"
 #include "include/Maps/Maps.h"
+#include "include/Monsters/Monsters.h"
+
 
 
 bool initialize(void);
@@ -27,9 +29,32 @@ int **map_array;
 const int MAP_DEFAULT_HEIGHT = 750;
 const int MAP_DEFAULT_WIDTH = 1600;
 
-const int BORDER_VALUE = 50;
 
+//Monster Section
+Monster *monsters;
+const int NUM_OF_MONSTERS = 1;
+const int CHANCE_OF_MONSTER_SPAWN = 100;
 
+//GameMaster
+const int MAX_SCORE_LIMIT = 5;
+void check_if_bullet_struck() {
+    for (int i = 0; i < player1.maxNumOfBullets; ++i) {
+        if (monsters[0].alive == true && player1.listOfBullets[i].live == true
+            &&player1.listOfBullets[i].xPos > monsters[0].xPos
+            && player1.listOfBullets[i].xPos < monsters[0].xPos + monsters[0].width
+            && player1.listOfBullets[i].yPos > monsters[0].yPos
+            &&player1.listOfBullets[i].yPos < monsters[0].yPos + monsters[0].height) {
+            player1.score += 1;
+            printf("Hit detected! Player score: %d\n", player1.score);
+            monsters[0].alive = false;
+            monsters[0].xPos = 0;
+            monsters[0].yPos = 0;
+            monsters[0].currentDuration = 0;
+            player1.listOfBullets[i].live = false;
+            return;
+        }
+    }
+}
 
 int main() {
     SDL_Event event;
@@ -37,7 +62,7 @@ int main() {
     atexit(shutdown);
     enum game_state current_state;
     bool quit;
-
+    float totalElapsedTime = 0;
 
     if(!initialize()) {
         exit(1);
@@ -57,17 +82,10 @@ int main() {
                 if (keyboardState[SDL_SCANCODE_SPACE]) {
                     current_state = MAIN_GAME_STATE;
                 }
-//                while(SDL_PollEvent(&event)) {
-//                    if (event.type == SDL_QUIT) {
-//                        quit = true;
-//                    }
-//                    if (event.type == SDL_KEYDOWN) {
-//                        current_state = MAIN_GAME_STATE;
-//                    }
-//                }
+
                 break;
             case MAIN_GAME_STATE:
-//                printf("Arrived at Game State\n");
+
                 while (SDL_PollEvent(&event)) {
                     if (event.type == SDL_QUIT) {
                         quit = true;
@@ -76,8 +94,6 @@ int main() {
                         case SDL_QUIT:
                             break;
                         case SDL_MOUSEBUTTONDOWN:
-                            printf("Left Mouse Button Successfully Pressed at x:%d, y:%d\n",
-                                   event.button.x, event.button.y);
                             addNewBullet(player1, event.button.x, event.button.y);
                             break;
 
@@ -89,6 +105,21 @@ int main() {
                 float elapsed = (float) diff / 1000.0f;
                 update(elapsed);
                 lastTick = curTick;
+                totalElapsedTime += elapsed;
+
+
+                /*
+                 * This should really be a state of its own, but I'm too lazy.
+                 * TODO:Turn this into an FSM.
+                 */
+                if (player1.score == MAX_SCORE_LIMIT) {
+                    printf("Congratulations on hitting %d monster!\n", MAX_SCORE_LIMIT);
+                    printf("Your total time is %f\n", totalElapsedTime);
+                    player1.score = 0;
+                    totalElapsedTime= 0;
+                    //Prob should go into another state, but this is good enough for prototype.
+                    current_state = INIT_STATE;
+                }
                 break;
 
             case EXIT_STATE:
@@ -150,16 +181,16 @@ bool initialize() {
 
     player1 = makeNewPlayer(maps.width / 2, maps.height / 2);
 
-
+    monsters = createArrayOfMonsters(NUM_OF_MONSTERS);
 
     return true;
 }
 
 void update(float elapsed) {
 
-
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
+    check_if_bullet_struck(player1, monsters);
 
     renderMap(&renderer, maps, SCREEN_HEIGHT, SCREEN_WIDTH);
     int xOffSetToCenter = (SCREEN_WIDTH / 2) - (maps.width / 2);
@@ -168,7 +199,12 @@ void update(float elapsed) {
                   MAP_DEFAULT_WIDTH, MAP_DEFAULT_HEIGHT,
                   xOffSetToCenter, yOffSetToCenter);
     renderPlayers(&renderer, &player1, 1);
+    randomlyGenerateMonster(monsters, CHANCE_OF_MONSTER_SPAWN, NUM_OF_MONSTERS,
+                            xOffSetToCenter, SCREEN_WIDTH - xOffSetToCenter,
+                            yOffSetToCenter, SCREEN_HEIGHT - yOffSetToCenter);
+    updateMonstersLifeDuration(elapsed, monsters, NUM_OF_MONSTERS);
 
+    renderMonsters(&renderer, monsters, NUM_OF_MONSTERS);
     SDL_RenderPresent(renderer);
 }
 
@@ -191,3 +227,4 @@ void shutdown() {
 
     SDL_Quit();
 }
+

@@ -9,7 +9,7 @@ const int PLAYER_WIDTH = 20;
 const int PLAYER_HEIGHT = 35;
 const int PLAYER_MARGIN = 10;
 const float PLAYER_SPEED_FOR_BOTH_X_AND_Y = 350.0f;
-const float PLAYER_BULLET_SPEED = 350.0f;
+const float PLAYER_BULLET_SPEED = 800.0f;
 const int BULLET_SIZE = 10;
 int MAX_NUMBER_OF_BULLETS = 128;
 
@@ -18,6 +18,7 @@ int MAX_NUMBER_OF_BULLETS = 128;
 Player makeNewPlayer(int startingPosX, int startingPosY) {
     Player p = {
             .score = 0,
+            .maxNumOfBullets = 128,
             .xPos = (float) startingPosX,
             .yPos = (float) startingPosY,
             .xSpeed = PLAYER_SPEED_FOR_BOTH_X_AND_Y,
@@ -116,7 +117,7 @@ void renderPlayers(SDL_Renderer **renderer, struct Player *players, int numOfPla
 
 
     for (int i = 0; i < numOfPlayers; ++i) {
-        SDL_SetRenderDrawColor(*renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(*renderer, 0, 0, 255, 255);
         SDL_Rect currentPlayer = {
                 .x = (int)players[i].xPos - PLAYER_HEIGHT / 2,
                 .y = (int)players[i].yPos - PLAYER_HEIGHT / 2,

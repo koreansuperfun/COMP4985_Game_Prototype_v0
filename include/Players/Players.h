@@ -5,6 +5,7 @@
 
 typedef struct Player{
     int score;
+    int maxNumOfBullets;
     float xPos;
     float yPos;
     float xSpeed;
