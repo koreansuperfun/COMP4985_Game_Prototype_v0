@@ -3,7 +3,7 @@
 
 
 
-const int BORDER_THICKNESS = 1;
+const int BORDER_THICKNESS = 5;
 const int BORDER_VALUE_IN_ARRAY = 1;
 
 Maps makeMap(int height, int width, int** mapArray) {
@@ -40,12 +40,12 @@ void setBorderLine(Maps *maps, int startingX, int startingY, int distance, char 
             ++counter;
         }
     } else if (dir == 'u') {
-        for (int y = startingX; (y >= 0) && (counter < distance); --y) {
+        for (int y = startingY; (y >= 0) && (counter < distance); --y) {
             maps->map_array[y][startingX] = BORDER_VALUE_IN_ARRAY;
             ++counter;
         }
     } else if (dir == 'd') {
-        for (int y = startingX; (y < maps->height) && (counter < distance); ++y) {
+        for (int y = startingY; (y < maps->height) && (counter < distance); ++y) {
             maps->map_array[y][startingX] = BORDER_VALUE_IN_ARRAY;
             ++counter;
         }
@@ -72,7 +72,7 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
 
 
     for (int y = 0; y < maps.height; ++y) {
-        for (int x = 0; x < maps.height; ++x) {
+        for (int x = 0; x < maps.width; ++x) {
             if (maps.map_array[y][x] == 1) {
                 SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 255);
                 SDL_Rect border_block = {

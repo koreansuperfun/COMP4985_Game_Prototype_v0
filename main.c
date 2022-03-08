@@ -7,7 +7,6 @@
 #include "include/State/state.h"
 #include "include/Players/Players.h"
 #include "include/Maps/Maps.h"
-#define LEN(arr) ((int) (sizeof (arr) / sizeof (arr)[0]))
 
 
 bool initialize(void);
@@ -45,26 +44,62 @@ int main() {
     }
 
     lastTick = SDL_GetTicks();
-    current_state = MAIN_GAME_STATE;
+    current_state = INIT_STATE;
     quit = false;
 
     while (!quit) {
-        //One and important way to kill the game.
-        //TODO: Need to set the quit to true when our FMS is EXIT_STATE.
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        switch(current_state) {
+            case INIT_STATE:
+                SDL_PollEvent(&event);
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+
+                if (keyboardState[SDL_SCANCODE_SPACE]) {
+                    current_state = MAIN_GAME_STATE;
+                }
+//                while(SDL_PollEvent(&event)) {
+//                    if (event.type == SDL_QUIT) {
+//                        quit = true;
+//                    }
+//                    if (event.type == SDL_KEYDOWN) {
+//                        current_state = MAIN_GAME_STATE;
+//                    }
+//                }
+                break;
+            case MAIN_GAME_STATE:
+//                printf("Arrived at Game State\n");
+                while (SDL_PollEvent(&event)) {
+                    if (event.type == SDL_QUIT) {
+                        quit = true;
+                    }
+                    switch(event.type){
+                        case SDL_QUIT:
+                            break;
+                        case SDL_MOUSEBUTTONDOWN:
+                            printf("Left Mouse Button Successfully Pressed at x:%d, y:%d\n",
+                                   event.button.x, event.button.y);
+                            addNewBullet(player1, event.button.x, event.button.y);
+                            break;
+
+                    }
+                }
+
+                uint32_t curTick = SDL_GetTicks();
+                uint32_t diff = curTick - lastTick;
+                float elapsed = (float) diff / 1000.0f;
+                update(elapsed);
+                lastTick = curTick;
+                break;
+
+            case EXIT_STATE:
                 quit = true;
-            }
+            case SCOREBOARD_STATE:
+                break;
+            default:
+                break;
         }
-
-        uint32_t curTick = SDL_GetTicks();
-        uint32_t diff = curTick - lastTick;
-        float elapsed = (float) diff / 1000.0f;
-        update(elapsed);
-        lastTick = curTick;
-
-
     }
+
     SDL_Quit();
 
 
@@ -97,13 +132,21 @@ bool initialize() {
     for (int i = 0; i < MAP_DEFAULT_HEIGHT; ++i) {
         map_array[i] = (int*) malloc(MAP_DEFAULT_WIDTH * sizeof(int));
     }
+    for (int i = 0; i < MAP_DEFAULT_HEIGHT; ++i) {
+        for (int j = 0; j < MAP_DEFAULT_WIDTH; ++j) {
+            map_array[i][j] = 0;
+        }
+    }
 
-    printf("size of length height: %d\n", MAP_DEFAULT_HEIGHT);
-    printf("size of length width: %d\n", MAP_DEFAULT_WIDTH);
 
 
 
     maps = makeMap(MAP_DEFAULT_HEIGHT, MAP_DEFAULT_WIDTH, map_array);
+    setBorderLine(&maps,100, 100, MAP_DEFAULT_WIDTH - 200, 'r');
+    setBorderLine(&maps,100, 100, 550, 'd');
+    setBorderLine(&maps,1500, 650, 550, 'u');
+    setBorderLine(&maps,1500, 650, MAP_DEFAULT_WIDTH - 200, 'l');
+
 
     player1 = makeNewPlayer(maps.width / 2, maps.height / 2);
 
@@ -113,18 +156,17 @@ bool initialize() {
 }
 
 void update(float elapsed) {
+
+
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
 
-
-    setBorderLine(&maps,100, 100, 1600, 'r');
-    setBorderLine(&maps,100, 100, 550, 'd');
-    setBorderLine(&maps,500, 500, 100, 'u');
-
-
     renderMap(&renderer, maps, SCREEN_HEIGHT, SCREEN_WIDTH);
-
-    updatePlayers(&player1, numOfPlayers, elapsed);
+    int xOffSetToCenter = (SCREEN_WIDTH / 2) - (maps.width / 2);
+    int yOffSetToCenter = (SCREEN_HEIGHT / 2) - (maps.height / 2);
+    updatePlayers(&player1, numOfPlayers, elapsed, map_array,
+                  MAP_DEFAULT_WIDTH, MAP_DEFAULT_HEIGHT,
+                  xOffSetToCenter, yOffSetToCenter);
     renderPlayers(&renderer, &player1, 1);
 
     SDL_RenderPresent(renderer);
