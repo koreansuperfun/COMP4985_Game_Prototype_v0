@@ -1,8 +1,6 @@
 #include <SDL2/SDL.h>
 #include "Maps.h"
 
-
-
 const int BORDER_THICKNESS = 5;
 const int BORDER_VALUE_IN_ARRAY = 1;
 
@@ -52,9 +50,7 @@ void setBorderLine(Maps *maps, int startingX, int startingY, int distance, char 
     } else {
         fprintf(stderr, "Direction must be a char of either u, d, l , or r.");
     }
-
 }
-
 
 
 void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenWidth) {
@@ -70,7 +66,6 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
     };
     SDL_RenderFillRect(*renderer, &playable_area);
 
-
     for (int y = 0; y < maps.height; ++y) {
         for (int x = 0; x < maps.width; ++x) {
             if (maps.map_array[y][x] == 1) {
@@ -82,8 +77,6 @@ void renderMap(SDL_Renderer **renderer, Maps maps, int screenHeight, int screenW
                         .h = BORDER_THICKNESS
                 };
                 SDL_RenderFillRect(*renderer, &border_block);
-            } else if (maps.map_array[y][x] == 2) {
-
             }
         }
     }

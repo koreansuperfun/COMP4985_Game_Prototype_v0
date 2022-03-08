@@ -63,8 +63,6 @@ void updateMonstersLifeDuration(float elapsed, struct Monster *arrayOfMonsters,
     }
 }
 
-
-
 void renderMonsters(SDL_Renderer **renderer, struct Monster *monsters, int numOfMonsters) {
     for (int i = 0; i < numOfMonsters; ++i){
         if (monsters[i].alive == true) {

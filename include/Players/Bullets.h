@@ -1,7 +1,3 @@
-//
-// Created by koreansuperfun on 3/7/22.
-//
-
 #ifndef COMP4985_GAME_PROTOTYPE_V0_BULLETS_H
 #define COMP4985_GAME_PROTOTYPE_V0_BULLETS_H
 

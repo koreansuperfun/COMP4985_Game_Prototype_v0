@@ -4,7 +4,6 @@
 #include "Players.h"
 #include "Bullets.h"
 
-
 const int PLAYER_WIDTH = 20;
 const int PLAYER_HEIGHT = 35;
 const int PLAYER_MARGIN = 10;
@@ -12,7 +11,6 @@ const float PLAYER_SPEED_FOR_BOTH_X_AND_Y = 350.0f;
 const float PLAYER_BULLET_SPEED = 800.0f;
 const int BULLET_SIZE = 10;
 int MAX_NUMBER_OF_BULLETS = 128;
-
 
 
 Player makeNewPlayer(int startingPosX, int startingPosY) {
@@ -25,11 +23,9 @@ Player makeNewPlayer(int startingPosX, int startingPosY) {
             .ySpeed = PLAYER_SPEED_FOR_BOTH_X_AND_Y,
             .bulletSpeed = PLAYER_BULLET_SPEED,
             .keyboardState = SDL_GetKeyboardState(NULL),
-//            .listOfBullets = (Bullet*) malloc(MAX_NUMBER_OF_BULLETS * sizeof(Bullet)),
             .listOfBullets = (Bullet*) malloc(MAX_NUMBER_OF_BULLETS * sizeof(Bullet)),
 
     };
-
     for (int i = 0; i < MAX_NUMBER_OF_BULLETS; ++i) {
         p.listOfBullets[i].live = false;
     }
@@ -43,8 +39,6 @@ void updatePlayers(struct Player *players, int numOfPlayers, float elapsed, int*
         fprintf(stderr, "There must be at least 1 player in the game to start.");
         exit(1);
     }
-
-
 
     //Update for each player
     for (int i = 0; i < numOfPlayers; ++i) {
@@ -84,27 +78,7 @@ void updatePlayers(struct Player *players, int numOfPlayers, float elapsed, int*
                 }
             }
         }
-//        for (int j = 0; j < MAX_NUMBER_OF_BULLETS; ++j) {
-//            //Check boundaries
-//            if ((int) players[i].listOfBullets[j].xPos < xOffset || (int) players[i].listOfBullets[j].xPos > (xOffset + mapWidth)
-//                || (int) players[i].listOfBullets[j].yPos < yOffset || (int) players[i].listOfBullets[j].yPos > (yOffset + mapHeight)) {
-//                players[i].listOfBullets[j].live = false;
-//            }
-//        }
-
-
-
-//        for (int j = 0; j < MAX_NUMBER_OF_BULLETS; ++j) {
-//            //Check boundaries
-//            if ((int) players[i].listOfBullets[j].xPos < xOffset || (int) players[i].listOfBullets[j].xPos > (xOffset + mapWidth)
-//                || (int) players[i].listOfBullets[j].yPos < yOffset || (int) players[i].listOfBullets[j].yPos > (yOffset + mapHeight)) {
-//                players[i].listOfBullets[j].live = false;
-//            }
-//        }
-
     }
-
-
 
 }
 
@@ -115,7 +89,6 @@ void renderPlayers(SDL_Renderer **renderer, struct Player *players, int numOfPla
         exit(1);
     }
 
-
     for (int i = 0; i < numOfPlayers; ++i) {
         SDL_SetRenderDrawColor(*renderer, 0, 0, 255, 255);
         SDL_Rect currentPlayer = {
@@ -125,7 +98,6 @@ void renderPlayers(SDL_Renderer **renderer, struct Player *players, int numOfPla
                 .h = PLAYER_HEIGHT
         };
         SDL_RenderFillRect(*renderer, &currentPlayer);
-
 
         //Render Each Bullet
         for (int j = 0; j < MAX_NUMBER_OF_BULLETS; ++j) {

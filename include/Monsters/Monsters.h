@@ -1,10 +1,5 @@
-//
-// Created by koreansuperfun on 3/7/22.
-//
-
 #ifndef COMP4985_GAME_PROTOTYPE_V0_MONSTERS_H
 #define COMP4985_GAME_PROTOTYPE_V0_MONSTERS_H
-
 
 #include <stdbool.h>
 

@@ -1,7 +1,3 @@
-//
-// Created by koreansuperfun on 3/5/22.
-//
-
 #ifndef COMP4985_GAME_PROTOTYPE_V0_MAPS_H
 #define COMP4985_GAME_PROTOTYPE_V0_MAPS_H
 
