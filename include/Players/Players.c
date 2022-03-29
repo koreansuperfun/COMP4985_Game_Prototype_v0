@@ -8,7 +8,7 @@ const int PLAYER_WIDTH = 20;
 const int PLAYER_HEIGHT = 35;
 const int PLAYER_MARGIN = 10;
 const float PLAYER_SPEED_FOR_BOTH_X_AND_Y = 350.0f;
-const float PLAYER_BULLET_SPEED = 800.0f;
+const float PLAYER_BULLET_SPEED = 100.0f;
 const int BULLET_SIZE = 10;
 int MAX_NUMBER_OF_BULLETS = 128;
 

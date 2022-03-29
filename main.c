@@ -8,6 +8,9 @@
 #include "include/Players/Players.h"
 #include "include/Maps/Maps.h"
 #include "include/Monsters/Monsters.h"
+#include "include/Monsters_v2/Monsters_v2.h"
+#include "include/Boosts/Boosts.h"
+
 
 bool initialize(void);
 void update(float elapsed);
@@ -33,27 +36,82 @@ Monster *monsters;
 const int NUM_OF_MONSTERS = 1;
 const int CHANCE_OF_MONSTER_SPAWN = 100;
 
+Monster_v2 *monsterV2;
+const int NUM_OF_MONSTERS_V2 = 10;
+const float SPAWN_EVERY_FLOAT = 1.0f;
+float timeSinceLastMonsterSpawn = 0;
+void updateMonsterTimeLimit(float elapsed) {
+    timeSinceLastMonsterSpawn += elapsed;
+}
+
+//Boost Section
+Boosts *boosts;
+int TEST_numOfBoostsDropped = 0;
+
 //GameMaster
 /*
  * This should really be a class of its own called GameMaster.
  * But for now, we just need one function for the prototype.
  */
-const int MAX_SCORE_LIMIT = 15;
-void check_if_bullet_struck() {
+const int MAX_SCORE_LIMIT = 1500;
+void dropBoost(float xPos, float yPos) {
+    if (TEST_numOfBoostsDropped < NUM_OF_BOOSTERS) {
+        dropBoostOnMap(boosts, TEST_numOfBoostsDropped++,
+                       xPos, yPos);
+    }
+}
+void check_if_bullet_struck_monster() {
     for (int i = 0; i < player1.maxNumOfBullets; ++i) {
-        if (monsters[0].alive == true && player1.listOfBullets[i].live == true
-            &&player1.listOfBullets[i].xPos > monsters[0].xPos
-            && player1.listOfBullets[i].xPos < monsters[0].xPos + monsters[0].width
-            && player1.listOfBullets[i].yPos > monsters[0].yPos
-            &&player1.listOfBullets[i].yPos < monsters[0].yPos + monsters[0].height) {
-            player1.score += 1;
-            printf("Hit detected! Player score: %d\n", player1.score);
-            monsters[0].alive = false;
-            monsters[0].xPos = 0;
-            monsters[0].yPos = 0;
-            monsters[0].currentDuration = 0;
-            player1.listOfBullets[i].live = false;
-            return;
+        for (int j = 0; j < NUM_OF_MONSTERS_V2; ++j) {
+            if (monsterV2[j].alive == true && player1.listOfBullets[i].live == true
+                &&player1.listOfBullets[i].xPos > monsterV2[j].xPos
+                && player1.listOfBullets[i].xPos < monsterV2[j].xPos + monsterV2[j].width
+                && player1.listOfBullets[i].yPos > monsterV2[j].yPos
+                &&player1.listOfBullets[i].yPos < monsterV2[j].yPos + monsterV2[j].height) {
+
+                    dropBoost(monsterV2[j].xPos, monsterV2[j].yPos);
+
+                    player1.score += 1;
+                    printf("Hit detected! Player score: %d\n", player1.score);
+                    monsterV2[j].alive = false;
+                    monsterV2[j].xPos = 0;
+                    monsterV2[j].yPos = 0;
+                    player1.listOfBullets[i].live = false;
+                    return;
+            }
+        }
+
+    }
+}
+
+void check_if_player_got_booster() {
+    for (int i = 0; i < NUM_OF_BOOSTERS; ++i) {
+        if (boosts[i].dropped == true
+            &&player1.xPos > boosts[i].xPos - (float) boosts[i].width
+            && player1.xPos < boosts[i].xPos + ((float) boosts[i].width * 2)
+            && player1.yPos > boosts[i].yPos  - (float) boosts[i].height
+            &&player1.yPos < boosts[i].yPos + ((float) boosts[i].height * 2)) {
+            switch(i) {
+                case INCREASE_BULLET_SPEED:
+                    boost_increaseBulletSpeed(&player1, 800.0f, boosts, i);
+                    break;
+                case SLOW_ENEMY:
+                    boost_slowEnemies(monsterV2, NUM_OF_MONSTERS_V2, boosts, i);
+                    break;
+                case FREEZE:
+                    boost_freezeEnemies(monsterV2, NUM_OF_MONSTERS_V2, boosts, i);
+                    break;
+                case KILL_ALL:
+                    boost_killAllEnemies(monsterV2, NUM_OF_MONSTERS_V2, boosts, i);
+                    break;
+                case INCREASE_SIZE:
+                    boost_increaseSizeAllEnemies(monsterV2, NUM_OF_MONSTERS_V2, boosts, i);
+
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 }
@@ -171,6 +229,24 @@ bool initialize() {
 
     player1 = makeNewPlayer(maps.width / 2, maps.height / 2);
     monsters = createArrayOfMonsters(NUM_OF_MONSTERS);
+    monsterV2 = createArrayOfMonstersV2(NUM_OF_MONSTERS_V2);
+    boosts = createAllBoosts();
+
+    SDL_GameController *controller = NULL;
+    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        printf("arrived here1\n");
+
+        if (SDL_IsGameController(i)) {
+            printf("arrived here2\n");
+
+            controller = SDL_GameControllerOpen(i);
+            if (controller) {
+                printf("Controller found here at %d\n", i);
+            } else {
+                fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+            }
+        }
+    }
 
     return true;
 }
@@ -178,7 +254,8 @@ bool initialize() {
 void update(float elapsed) {
     SDL_SetRenderDrawColor(renderer, 128, 192, 255, 255);
     SDL_RenderClear(renderer);
-    check_if_bullet_struck(player1, monsters);
+    check_if_bullet_struck_monster();
+    check_if_player_got_booster();
 
     renderMap(&renderer, maps, SCREEN_HEIGHT, SCREEN_WIDTH);
     int xOffSetToCenter = (SCREEN_WIDTH / 2) - (maps.width / 2);
@@ -187,13 +264,27 @@ void update(float elapsed) {
                   MAP_DEFAULT_WIDTH, MAP_DEFAULT_HEIGHT,
                   xOffSetToCenter, yOffSetToCenter);
     renderPlayers(&renderer, &player1, 1);
-    randomlyGenerateMonster(monsters, CHANCE_OF_MONSTER_SPAWN, NUM_OF_MONSTERS,
-                            xOffSetToCenter, SCREEN_WIDTH - xOffSetToCenter,
+//    randomlyGenerateMonster(monsters, CHANCE_OF_MONSTER_SPAWN, NUM_OF_MONSTERS,
+//                            xOffSetToCenter, SCREEN_WIDTH - xOffSetToCenter,
+//                            yOffSetToCenter, SCREEN_HEIGHT - yOffSetToCenter);
+//    updateMonstersLifeDuration(elapsed, monsters, NUM_OF_MONSTERS);
+//
+//    renderMonsters(&renderer, monsters, NUM_OF_MONSTERS);
+
+
+    /**Render All Boosts*/
+    renderAllBoosts(&renderer, boosts);
+
+    /**Render All Monsters*/
+    updateMonsterTimeLimit(elapsed);
+    if (timeSinceLastMonsterSpawn > SPAWN_EVERY_FLOAT) {
+        timeSinceLastMonsterSpawn -= SPAWN_EVERY_FLOAT;
+        summonMonsters(monsterV2, &player1, NUM_OF_MONSTERS_V2, xOffSetToCenter, SCREEN_WIDTH - xOffSetToCenter,
                             yOffSetToCenter, SCREEN_HEIGHT - yOffSetToCenter);
-    updateMonstersLifeDuration(elapsed, monsters, NUM_OF_MONSTERS);
-
-    renderMonsters(&renderer, monsters, NUM_OF_MONSTERS);
-
+    }
+    updateAllMonsters(elapsed, monsterV2, NUM_OF_MONSTERS_V2,MAP_DEFAULT_WIDTH, MAP_DEFAULT_HEIGHT,
+                      xOffSetToCenter, yOffSetToCenter);
+    renderAllMonsters(&renderer, monsterV2, NUM_OF_MONSTERS_V2);
     SDL_RenderPresent(renderer);
 }
 
